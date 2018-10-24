@@ -446,15 +446,34 @@ meann <- function(data, num) {
 meann(samp, 10)
 ```
   d. The lower bound of a 95% CI will be the 0.025 percentile
-```{r}
-```
-  e. The upper bound of a 95% CI will be the 0.975 percentile
-```{r}
-```
+    e. The upper bound of a 95% CI will be the 0.975 percentile
 Make a function called `boot_ci` which calculates the 95% confidence interval in this manner. 
+```{r}
+boot_ci <- function(data, num) {
+  data<-sample(10,replace = TRUE)
+  for (i in 1:length(data)) {
+  resamples <- lapply(1:num, function(i) sample(data, replace=T)) 
+  a<-sapply(resamples,mean)
+  s<-sapply(resamples,sd)
+  return(data.frame(mean = a)
+  }
+}
+
+boot_ci2 <- function(data, num){
+  n <- length(data)
+  error <- qnorm(0.975)*s/sqrt(n)
+  left <- a-error
+  right <- a+error
+}
+head(boot_ci2(data,1000))
+
+```
+
 
 5. For problems 3b and 3c, you calculated a mean value. Because you saved these final results in a vector, use the bootstrap to estimate the variance of the return in each case for your final answer. Once you have these results, which game has the smaller variance in returns?
 ```{r}
+boot_ci()
+
 
 ```
     
