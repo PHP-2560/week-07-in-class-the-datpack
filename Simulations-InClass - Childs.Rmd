@@ -331,16 +331,84 @@ mean(size)                              #calculate the mean
 b. Repeat this process but change the starting probability to a new value within 2% either way. Get the expected return after 100 repetitions. Keep exploring until you have a return value that is as fair as you can make it. Can you do this automatically?
 
 
-
 4. Creating a Bootstrap function. There is a particular concept called [bootstrapping]
 (https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) where we can easily create 95% confidence intervals, even for complex estimators.
 
 The steps of this process are:
 
   a. Draw a sample, with replacement, from your data which is the same length of your data.
+```{r}
+sample<-sample(20, replace = T)
+
+```
   b. Calculate the statistic of interest on this boostrap sample (ie mean, variance, regression,...)
+```{r}
+a<-mean(sample)
+s<-sd(sample)
+n <- sample
+error <- qnorm(0.975)*s/sqrt(n)
+left <- a-error
+right <- a+error
+
+
+```
   c. Peform steps 1:2 at least 1000 times over until you have a vector of your statistics. 
+```{r}
+
+meann <- function(data, num) {
+    resamples <- lapply(1:num, function(i) sample(data, replace=T)) # why function(i)?? 
+    
+    
+    a<-sapply(sample, mean)
+    s<-sd(sample)
+    n <- sample
+    error <- qnorm(0.975)*s/sqrt(n)
+    left <- a-error
+    right <- a+error
+    
+    r.mean <- sapply(resamples, mean)
+    r.var <- sapply(resamples, var)
+    std.err <- sqrt(var(r.mean))
+    list(var = r.var, std.err=std.err, resamples=resamples, mean=r.mean)   
+}
+meann(samp, 10)
+
+set.seed(1)
+
+sample<-vector()
+
+boot<-function(x){
+  for(i in 1:length(x)){
+  sample<-sample(, replace = T)
+
+  if()
+  }
+  if(h==100000){break}
+
+}
+  h=0
+  probability<-prob
+  while(bets>0) {
+    pval=runif(1)
+    if(pval <= prob)
+    {
+      bankroll = bankroll +bets
+      prob = prob+incr
+    }else{
+      bankroll = bankroll-bets
+      prob = probability
+    }
+    h=h+1
+    if(bankroll < bets){break}
+  }
+  return(bankroll)
+}
+
+```
   d. The lower bound of a 95% CI will be the 0.025 percentile
+```{r}
+
+```
   e. The upper bound of a 95% CI will be the 0.975 percentile
 
 Make a function called `boot_ci` which calculates the 95% confidence interval in this manner. 
