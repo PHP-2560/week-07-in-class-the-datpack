@@ -333,18 +333,19 @@ This is not fair because the mean size is 0.
     
 ```{r}
 set.seed(1)
-proportion1=numeric()
-for (j in 1:20) {
+proportion=numeric()
+for (j in 1:20){
   size=numeric()
   s = 100
-for(i in 1:s) {
-  dur6 = markov_chain(100,900,0.461+0.002*j)
-  size_return = c(size_return,dur6)
+for(i in 1:s)
+{
+  nextb = markov_chain(100,900,0.46+0.002*j)
+  size = c(size,nextb)
 }
   nextproportion=length(which(size==0))/100
-  proportion1=c(proportion1,nextproportion)
+  proportion=c(proportion,nextproportion)
 }
-proportion1
+proportion #when the proportion is at 0.5, it is most fair
 ``` 
 The return value is most fair at 0.46. 
 
@@ -358,36 +359,34 @@ markov_chain1=function(bet,bankroll,p,increment)
   prob<-p
   while(bet>0) {
     ProbVal=runif(1)
-    if(ProbVal <= p) {
+    if(ProbVal <= p)
+    {
       bankroll = bankroll +bet
       p = p+increment
-    } else {
+    }else{
       bankroll = bankroll-bet
       p = prob
     }
     b=b+1
-    if(b==100000) {
-      break
-      }
-    if(bankroll < bet) {
-      break
-      }
+    if(b==100000){break}
+    if(bankroll < bet){break}
   }
   return(bankroll)
 }
 
 proportion = numeric()
-for (z in 1:20) {
+for (z in 1:20){
 size=numeric()
 s = 100
-for(i in 1:s) {
-  dur7 = markov_chain1(100,900,0.48,0.002*z)
-  size_return = c(size_return,dur7)
+for(i in 1:s)
+{
+  nextb = markov_chain1(100,900,0.48,0.002*z)
+  size = c(size,nextb)
 }
 nextproportion=length(which(size==0))/100
 proportion=c(proportion,nextproportion)
 }
-proportion
+proportion #when the proportion is at 0.5, it is most fair
 ```
 
 4. Creating a Bootstrap function. There is a particular concept called [bootstrapping]
@@ -397,19 +396,28 @@ The steps of this process are:
 
   a. Draw a sample, with replacement, from your data which is the same length of your data.
 ```{r}
-
+boot_sample<-sample(10,replace = TRUE)
+boot_sample
 ```
 
   b. Calculate the statistic of interest on this boostrap sample (ie mean, variance, regression,...)
 
 ```{r}
-
+mean(boot_sample)
 ```
 
   c. Peform steps 1:2 at least 1000 times over until you have a vector of your statistics. 
 
 ```{r}
+boot_sample2 = function(x) {
+  for (i in 1:length(x)) {
+    mean1=mean(x)
+    a= vector(mean1, mode = "numeric")
+    return(a)
+  }
+}
 
+boot_sample2(1000)
 ```
 
   d. The lower bound of a 95% CI will be the 0.025 percentile
