@@ -394,53 +394,28 @@ proportion #when the proportion is at 0.5, it is most fair
 
 The steps of this process are:
 
-  a. Draw a sample, with replacement, from your data which is the same length of your data.
-```{r}
-data<-sample(10,replace = TRUE)
-data
-```
-
+  a. Draw a sample, with replacement, from your data which is the same length of your data. 
   b. Calculate the statistic of interest on this boostrap sample (ie mean, variance, regression,...)
-
-```{r}
-mean(data)
-var(data)
-```
-
   c. Peform steps 1:2 at least 1000 times over until you have a vector of your statistics. 
-
-```{r}
-boot_sample <- function(data, num) {
-    resamples <- lapply(1:num, function(i) sample(data, replace=T)) 
-    r.mean <- sapply(resamples, mean)
-    r.var <- sapply(resamples, var)
-    std.err <- sqrt(var(r.mean))
-    list(var = r.var, std.err=std.err, resamples=resamples, mean=r.mean)   
-}
-boot_sample(data, 1000)
-```
-
   d. The lower bound of a 95% CI will be the 0.025 percentile
   e. The upper bound of a 95% CI will be the 0.975 percentile
-
+Make a function called `boot_ci` which calculates the 95% confidence interval in this manner.
 ```{r}
-boot_ci <- function(data, num) {
-  data<-sample(10,replace = TRUE)
+boot_ci <- function(data,num) {
+  data<-sample(1000,replace = TRUE) #drawing a sample
   for (i in 1:length(data)) {
   resamples <- lapply(1:num, function(i) sample(data, replace=T)) 
-  a<-sapply(resamples,mean)
+  a<-sapply(resamples,mean) #calculate stats of interest
   s<-sapply(resamples,sd)
   n <- length(resamples)
-  error <- qnorm(0.975)*s/sqrt(n)
-  left <- a-error
+  error <- qnorm(0.975)*s/sqrt(n) #calculate 95% CI
+  left <- a-error 
   right <- a+error
-  return(data.frame(lower_bound = left, upper_bound=right))
+  return(data.frame(mean=a, lower_bound=left, upper_bound=right)) #printing dataframe of 95% CI
   }
 }
 boot_ci(data,1000)
 ```
 
-
-Make a function called `boot_ci` which calculates the 95% confidence interval in this manner. 
 
 5. For problems 3b and 3c, you calculated a mean value. Because you saved these final results in a vector, use the bootstrap to estimate the variance of the return in each case for your final answer. Once you have these results, which game has the smaller variance in returns?
