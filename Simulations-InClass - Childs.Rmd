@@ -295,6 +295,41 @@ var(bankroll)
 
 3. **Markov Chains**. Suppose you have a game where the probability of winning on your first hand is 48%; each time you win, that probability goes up by one percentage point for the next game (to a maximum of 100%, where it must stay), and each time you lose, it goes back down to 48%. Assume you cannot go bust and that the size of your wager is a constant $100.
     a. Is this a fair game? Simulate one hundred thousand sequential hands to determine the size of your return. Then repeat this simulation 99 more times to get a range of values to calculate the expectation.
+```{r}
+set.seed(1)                             #set seed so simulation can be reproduced
+markchain=function(bets,bankroll,prob)  #create a function with 3 arguments
+{
+  h=0                                   #no hands
+  probability<-prob                     #the probability equals the given argument
+  while(bets>0) {                        #while there is an actual bet.. 
+    pval=runif(1)                       #generates a normal random number
+    if(pval <= prob)                    #if generated number is less than or equal to the probability...
+    {
+      bankroll = bankroll +bets         #define the secondary argument as the combination of the first and second given arguments
+      prob = prob+0.01                  #define the tertiary argument as the given argument + 0.01 (prob increases by 1 percentage point for the next game)
+    }else{                              #if pval is not <= prob, then...
+      bankroll = bankroll-bets          #define the secondary argument as the amount of money minus the bet (lost the hand)
+      prob = probability                #the probability will stay the same
+    }
+    h=h+1                               #the # of hands increases
+    if(h==100000){break}                #once the # of hands reaches 100000, break
+    if(bankroll < bets){break}          #once the bankroll is less than the amount of the bet, break (can't afford more bets)
+  }
+  return(bankroll)                      #return the new value for bankroll
+}
+
+size = numeric()                        #size is a vector
+it3 = 100                               #create value for simulation iterations
+for(i in 1:it3)                         #for i in the length of the iterations
+{
+  next3 = markchain(100,900,0.48)       #use previosly defined function to simulate 99 more times        
+  size = c(size,next3)                  #define size as a vector
+}
+mean(size)                              #calculate the mean
+
+```
+b. Repeat this process but change the starting probability to a new value within 2% either way. Get the expected return after 100 repetitions. Keep exploring until you have a return value that is as fair as you can make it. Can you do this automatically?
+
 
 
 4. Creating a Bootstrap function. There is a particular concept called [bootstrapping]
