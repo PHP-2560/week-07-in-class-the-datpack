@@ -312,44 +312,41 @@ markov_chain=function(bet,bankroll,p) {
       bankroll = bankroll-bet #defined as losing 
       p = prob #prob doesn't increase if lose
     }
-    b=b+1
-    if(b==100000) { #Number of hands break when number of hands = 100,000 
-      break
-      }
-    if(bankroll < bet) { #if lost too much, it breaks 
-      break
-      }
-  }
+    b=b+1 #Number of hands break when number of hands = 100,000 
+    if(b==100000) {break}
+    if(bankroll < bet) {break} #if lost too much, it breaks
+}
   return(bankroll)
 }
 
 size_return = numeric()
 s = 100
-for(i in 1:s)
-{
+for(i in 1:s) {
   dur5 = markov_chain(100,900,0.48)
-  size = c(size_return,dur5)
+  size_return = c(size_return,dur5)
 }
-mean(size_return) #Not fair is the mean size is 0 
+mean(size_return)  
 ```
+This is not fair because the mean size is 0. 
 
   b. Repeat this process but change the starting probability to a new value within 2% either way. Get the expected return after 100 repetitions. Keep exploring until you have a return value that is as fair as you can make it. Can you do this automatically?
     
 ```{r}
 set.seed(1)
-proportion=numeric()
+proportion1=numeric()
 for (j in 1:20) {
   size=numeric()
   s = 100
 for(i in 1:s) {
-  dur6 = markov_chain(100,900,0.46+0.002*j)
+  dur6 = markov_chain(100,900,0.461+0.002*j)
   size_return = c(size_return,dur6)
 }
   nextproportion=length(which(size==0))/100
-  proportion=c(proportion,nextproportion)
+  proportion1=c(proportion1,nextproportion)
 }
-proportion
+proportion1
 ``` 
+The return value is most fair at 0.46. 
 
    c. Repeat again, keeping the initial probability at 48%, but this time change the probability increment to a value different from 1%. Get the expected return after 100 repetitions. Keep changing this value until you have a return value that is as fair as you can make it. 
 
@@ -399,10 +396,33 @@ proportion
 The steps of this process are:
 
   a. Draw a sample, with replacement, from your data which is the same length of your data.
+```{r}
+
+```
+
   b. Calculate the statistic of interest on this boostrap sample (ie mean, variance, regression,...)
+
+```{r}
+
+```
+
   c. Peform steps 1:2 at least 1000 times over until you have a vector of your statistics. 
+
+```{r}
+
+```
+
   d. The lower bound of a 95% CI will be the 0.025 percentile
+
+```{r}
+
+```
+
   e. The upper bound of a 95% CI will be the 0.975 percentile
+
+```{r}
+
+```
 
 Make a function called `boot_ci` which calculates the 95% confidence interval in this manner. 
 
