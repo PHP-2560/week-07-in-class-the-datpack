@@ -333,7 +333,7 @@ This is not fair because the mean size is 0.
     
 ```{r}
 set.seed(1)
-proportion=numeric()
+proportion1=numeric()
 for (j in 1:20){
   size=numeric()
   s = 100
@@ -343,9 +343,9 @@ for(i in 1:s)
   size = c(size,nextb)
 }
   nextproportion=length(which(size==0))/100
-  proportion=c(proportion,nextproportion)
+  proportion1=c(proportion1,nextproportion)
 }
-proportion #when the proportion is at 0.5, it is most fair
+proportion1 #when the proportion is at 0.5, it is most fair
 ``` 
 The return value is most fair at 0.46. 
 
@@ -374,7 +374,7 @@ markov_chain1=function(bet,bankroll,p,increment)
   return(bankroll)
 }
 
-proportion = numeric()
+proportion2 = numeric()
 for (z in 1:20){
 size=numeric()
 s = 100
@@ -384,9 +384,9 @@ for(i in 1:s)
   size = c(size,nextb)
 }
 nextproportion=length(which(size==0))/100
-proportion=c(proportion,nextproportion)
+proportion2=c(proportion2,nextproportion)
 }
-proportion #when the proportion is at 0.5, it is most fair
+proportion2 #when the proportion is at 0.5, it is most fair
 ```
 
 4. Creating a Bootstrap function. There is a particular concept called [bootstrapping]
@@ -407,15 +407,28 @@ boot_ci <- function(data,num) {
   resamples <- lapply(1:num, function(i) sample(data, replace=T)) 
   a<-sapply(resamples,mean) #calculate stats of interest
   s<-sapply(resamples,sd)
+  }  
+}  
+
+
+conf_int <- function(resamples,num) {
   n <- length(resamples)
+  a<-sapply(resamples,mean)
   error <- qnorm(0.975)*s/sqrt(n) #calculate 95% CI
   left <- a-error 
   right <- a+error
-  return(data.frame(mean=a, lower_bound=left, upper_bound=right)) #printing dataframe of 95% CI
-  }
+  return(data.frame(lower_bound=left, upper_bound=right)) #printing dataframe of 95% CI
 }
-boot_ci(data,1000)
+
+boot<-sapply(boot_ci(data,1000), conf_int)
 ```
 
 
 5. For problems 3b and 3c, you calculated a mean value. Because you saved these final results in a vector, use the bootstrap to estimate the variance of the return in each case for your final answer. Once you have these results, which game has the smaller variance in returns?
+
+```{r}
+boot_ci(proportion1,100)
+boot_ci(proportion2,100)
+```
+
+
