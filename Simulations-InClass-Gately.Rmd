@@ -427,15 +427,19 @@ boot_sample(data, 1000)
 boot_ci <- function(data, num) {
   data<-sample(10,replace = TRUE)
   for (i in 1:length(data)) {
-    resamples <- lapply(1:num, function(i) sample(data, replace=T)) 
-    r.mean <- sapply(resamples, mean)
-    r.var <- sapply(resamples, var)
-    std.err <- sqrt(var(r.mean))
-    return(list(var = r.var, std.err=std.err, resamples=resamples, mean=r.mean))  
+  resamples <- lapply(1:num, function(i) sample(data, replace=T)) 
+  a<-sapply(resamples,mean)
+  s<-sapply(resamples,sd)
+  n <- length(resamples)
+  error <- qnorm(0.975)*s/sqrt(n)
+  left <- a-error
+  right <- a+error
+  return(data.frame(lower_bound = left, upper_bound=right))
   }
 }
-boot_ci(data, 1000)
+boot_ci(data,1000)
 ```
+
 
 Make a function called `boot_ci` which calculates the 95% confidence interval in this manner. 
 
