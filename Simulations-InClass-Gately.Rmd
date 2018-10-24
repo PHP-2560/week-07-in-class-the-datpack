@@ -396,40 +396,45 @@ The steps of this process are:
 
   a. Draw a sample, with replacement, from your data which is the same length of your data.
 ```{r}
-boot_sample<-sample(10,replace = TRUE)
-boot_sample
+data<-sample(10,replace = TRUE)
+data
 ```
 
   b. Calculate the statistic of interest on this boostrap sample (ie mean, variance, regression,...)
 
 ```{r}
-mean(boot_sample)
+mean(data)
+var(data)
 ```
 
   c. Peform steps 1:2 at least 1000 times over until you have a vector of your statistics. 
 
 ```{r}
-boot_sample2 = function(x) {
-  for (i in 1:length(x)) {
-    mean1=mean(x)
-    a= vector(mean1, mode = "numeric")
-    return(a)
-  }
+boot_sample <- function(data, num) {
+    resamples <- lapply(1:num, function(i) sample(data, replace=T)) 
+    r.mean <- sapply(resamples, mean)
+    r.var <- sapply(resamples, var)
+    std.err <- sqrt(var(r.mean))
+    list(var = r.var, std.err=std.err, resamples=resamples, mean=r.mean)   
 }
-
-boot_sample2(1000)
+boot_sample(data, 1000)
 ```
 
   d. The lower bound of a 95% CI will be the 0.025 percentile
-
-```{r}
-
-```
-
   e. The upper bound of a 95% CI will be the 0.975 percentile
 
 ```{r}
-
+boot_ci <- function(data, num) {
+  data<-sample(10,replace = TRUE)
+  for (i in 1:length(data)) {
+    resamples <- lapply(1:num, function(i) sample(data, replace=T)) 
+    r.mean <- sapply(resamples, mean)
+    r.var <- sapply(resamples, var)
+    std.err <- sqrt(var(r.mean))
+    return(list(var = r.var, std.err=std.err, resamples=resamples, mean=r.mean))  
+  }
+}
+boot_ci(data, 1000)
 ```
 
 Make a function called `boot_ci` which calculates the 95% confidence interval in this manner. 
