@@ -298,33 +298,37 @@ The mean of the bankroll after 100 hands is 32.2 and the variance is 59837.
     a. Is this a fair game? Simulate one hundred thousand sequential hands to determine the size of your return. Then repeat this simulation 99 more times to get a range of values to calculate the expectation.
     
 ```{r}
-set.seed(1)
-markov_chain=function(bet,bankroll,p) {
-  b=0  #hands=0 
-  prob<-p
-  while(bet>0) {
-    ProbVal=runif(1) #generates single normal random number
-    if(ProbVal <= p) {
-      bankroll = bankroll +bet  #defined as winning 
-      p = p+0.01 #prob increases if win 
-    } else {
-      bankroll = bankroll-bet #defined as losing 
-      p = prob #prob doesn't increase if lose
+set.seed(1)                             #set seed so simulation can be reproduced
+markchain=function(bets,bankroll,prob)  #create a function with 3 arguments
+{
+  h=0                                   #no hands
+  probability<-prob                     #the probability equals the given argument
+  while(bets>0) {                        #while there is an actual bet.. 
+    pval=runif(1)                       #generates a normal random number
+    if(pval <= prob)                    #if generated number is less than or equal to the probability...
+    {
+      bankroll = bankroll +bets         #define the secondary argument as the combination of the first and second given arguments
+      prob = prob+0.01                  #define the tertiary argument as the given argument + 0.01 (prob increases by 1 percentage point for the next game)
+    }else{                              #if pval is not <= prob, then...
+      bankroll = bankroll-bets          #define the secondary argument as the amount of money minus the bet (lost the hand)
+      prob = probability                #the probability will stay the same
     }
-    b=b+1 #Number of hands break when number of hands = 100,000 
-    if(b==100000) {break}
-    if(bankroll < bet) {break} #if lost too much, it breaks
-}
-  return(bankroll)
+    h=h+1                               #the # of hands increases
+    if(h==100000){break}                #once the # of hands reaches 100000, break
+    if(bankroll < bets){break}          #once the bankroll is less than the amount of the bet, break (can't afford more bets)
+  }
+  return(bankroll)                      #return the new value for bankroll
 }
 
-size_return = numeric()
-s = 100
-for(i in 1:s) {
-  dur5 = markov_chain(100,900,0.48)
-  size_return = c(size_return,dur5)
+size = numeric()                        #size is a vector
+it3 = 100                               #create value for simulation iterations
+for(i in 1:it3)                         #for i in the length of the iterations
+{
+  next3 = markchain(100,900,0.48)       #use previosly defined function to simulate 99 more times        
+  size = c(size,next3)                  #define size as a vector
 }
-mean(size_return)  
+mean(size)                              #calculate the mean
+
 ```
 This is not fair because the mean size is 0. 
 
@@ -332,62 +336,78 @@ This is not fair because the mean size is 0.
     
 ```{r}
 set.seed(1)
-proportion1=numeric()
-for (j in 1:20){
+
+increment<-function(N,v){
+ output=numeric()
+  for (j in 1:25){
   size=numeric()
-  s = 100
-for(i in 1:s)
+  N=N
+  for(i in 1:N)
 {
-  nextb = markov_chain(100,900,0.46+0.002*j)
-  size = c(size,nextb)
+  next4 = markchain(100,900,0.48+v*j)
+  size = c(size,next4)
 }
-  nextproportion=length(which(size==0))/100
-  proportion1=c(proportion1,nextproportion)
+  next_val=length(which(size==0))/N
+  output=c(output,next_val)
 }
-proportion1 #when the proportion is at 0.5, it is most fair
-``` 
+  return(output)
+}
+
+increment(N=100,0.002)
+#It looks like 51 is the fairest the game will be
+```
 The probability increment is most fair at a value of 0.05. 
 
    c. Repeat again, keeping the initial probability at 48%, but this time change the probability increment to a value different from 1%. Get the expected return after 100 repetitions. Keep changing this value until you have a return value that is as fair as you can make it. 
 
 ```{r}
 set.seed(1)
-markov_chain1=function(bet,bankroll,p,increment)
+markchain1=function(bets,bankroll,prob,incr)
 {
-  b=0
-  prob<-p
-  while(bet>0) {
-    ProbVal=runif(1)
-    if(ProbVal <= p)
+  h=0
+  probability<-prob
+  while(bets>0) {
+    pval=runif(1)
+    if(pval <= prob)
     {
-      bankroll = bankroll +bet
-      p = p+increment
+      bankroll = bankroll +bets
+      prob = prob+incr
     }else{
-      bankroll = bankroll-bet
-      p = prob
+      bankroll = bankroll-bets
+      prob = probability
     }
-    b=b+1
-    if(b==100000){break}
-    if(bankroll < bet){break}
+    h=h+1
+    if(h==100000){break}
+    if(bankroll < bets){break}
   }
   return(bankroll)
 }
 
-proportion2 = numeric()
-for (z in 1:20){
-size=numeric()
-s = 100
-for(i in 1:s)
+increment1<-function(N,v,g){
+ output=numeric()
+  for (j in 1:20){
+  size=numeric()
+  N=N
+  for(i in 1:N)
 {
-  nextb = markov_chain1(100,900,0.48,0.002*z)
-  size = c(size,nextb)
+  next4 = markchain1(100,900,0.48+v*j, g)
+  size = c(size,next4)
 }
-nextproportion=length(which(size==0))/100
-proportion2=c(proportion2,nextproportion)
+  next_val=length(which(size==0))/N
+  output=c(output,next_val)
 }
-proportion2 #when the proportion is at 0.5, it is most fair
+  return(output)
+}
+
+
+increment1(N=100, 0.002, 0.025)
+increment1(N=100, 0.002, 0.018)
+increment1(N=100, 0.002, 0.015)
+increment1(N=100, 0.002, 0.012)
+
+#If the probability increment is changed to 3%, it looks like 51 is the fairest the game will be.
 ```
-The probability increment is most fair at a value of 0.034.
+The probability increment is most fair at a value of 0.03.
 
 4. Creating a Bootstrap function. There is a particular concept called [bootstrapping]
 (https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) where we can easily create 95% confidence intervals, even for complex estimators.
@@ -400,29 +420,57 @@ The steps of this process are:
   d. The lower bound of a 95% CI will be the 0.025 percentile
   e. The upper bound of a 95% CI will be the 0.975 percentile
 Make a function called `boot_ci` which calculates the 95% confidence interval in this manner.
+
 ```{r}
-boot_ci <- function(data,num) {
-  data<-sample(1000,replace = TRUE) #drawing a sample
-  for (i in 1:length(data)) {
-  resamples <- lapply(1:num, function(i) sample(data, replace=T)) 
-  a<-sapply(resamples,mean) #calculate stats of interest
-  s<-sapply(resamples,sd)
-  }  
-}  
+x<-1:50
 
+#boot1<-function(x, N){    #N equals # of times to sample
+  #for (i in 1:N){
+  #data<-sample(x, length(x),replace = T)
+  #a<-mean(data, na.rm=TRUE)
+  #s<-sd(data, na.rm=TRUE)
+  #n <- length(data)
+  #v<-var(data, na.rm=TRUE)
+  #error <- qnorm(0.975)*s/sqrt(n)
+  #lowbound <- a-error
+  #upbound <- a+error
+#}
+  #return(c(a, v, lowbound, upbound))
+#}
 
-conf_int <- function(resamples,num) {
-  n <- length(resamples)
-  a<-sapply(resamples,mean)
-  error <- qnorm(0.975)*s/sqrt(n) #calculate 95% CI
-  left <- a-error 
-  right <- a+error
-  return(data.frame(lower_bound=left, upper_bound=right)) #printing dataframe of 95% CI
+#boot2<-function(x, N, FUN, z){    #N equals # of times to sample
+  #for (i in 1:N){
+  #data<-sample(x, length(x),replace = T)
+  #fxn<-FUN(data)
+  #a<-mean(data, na.rm=TRUE)
+  #s<-sd(data, na.rm=TRUE)
+  #n <- length(data)
+  #v<-var(data, na.rm=TRUE)
+  #error <- qnorm(z)*s/sqrt(n)
+  #lowbound <- a-error
+  #upbound <- a+error
+#}
+  #return(c(fxn, lowbound, upbound))
+#}
+
+boot_ci<-function(x, N, FUN, z){    #x=data, N=# of times to sample, FUN=function of interest, z=z-score of interest
+  sample<-c()                       #initiate vector
+  for (i in 1:N){                   #for each iteration
+  data<-sample(x, length(x),replace = T)  #sample whole length with replacement
+  sample[i]<-FUN(data)              #store function of interest from bootstrapped sample in the vector
+  a<-mean(sample, na.rm=TRUE)       #Calculate mean, sd, and length to use for calculation of CI
+  s<-sd(sample, na.rm=TRUE)
+  n <- length(sample)
+  error <- qnorm(z)*s/sqrt(n)       #use mean, sd, and length to calculate error
+  lowbound <- a-error               #calculate lower bound and upper bound by subtracting or adding error
+  upbound <- a+error
 }
+  return(c(lowbound, upbound))      #retrun the confidence intervals
+}
+boot_ci(x, 1000, FUN=var, 0.975)
+boot_ci(x, 1000, FUN=mean, 0.975)
 
-boot<-sapply(boot_ci(data,1000), conf_int)
 ```
-
 
 5. For problems 3b and 3c, you calculated a mean value. Because you saved these final results in a vector, use the bootstrap to estimate the variance of the return in each case for your final answer. Once you have these results, which game has the smaller variance in returns?
 
