@@ -63,4 +63,24 @@ The steps of this process are:
 
 Make a function called `boot_ci` which calculates the 95% confidence interval in this manner. 
 
+```{r}
+x<-1:50
+boot_ci<-function(x, N, FUN, z){    #x=data, N=# of times to sample, FUN=function of interest, z=z-score of interest
+  sample<-c()                       #initiate vector
+  for (i in 1:N){                   #for each iteration
+  data<-sample(x, length(x),replace = T)  #sample whole length with replacement
+  sample[i]<-FUN(data)              #store function of interest from bootstrapped sample in the vector
+  a<-mean(sample, na.rm=TRUE)       #Calculate mean, sd, and length to use for calculation of CI
+  s<-sd(sample, na.rm=TRUE)
+  n <- length(sample)
+  error <- qnorm(z)*s/sqrt(n)       #use mean, sd, and length to calculate error
+  lowbound <- a-error               #calculate lower bound and upper bound by subtracting or adding error
+  upbound <- a+error
+}
+  return(c(lowbound, upbound))      #return the confidence intervals
+}
+boot_ci(x, 1000, FUN=var, 0.975)
+boot_ci(x, 1000, FUN=mean, 0.975)
+```
+
 5. For problems 3b and 3c, you calculated a mean value. Because you saved these final results in a vector, use the bootstrap to estimate the variance of the return in each case for your final answer. Once you have these results, which game has the smaller variance in returns?
