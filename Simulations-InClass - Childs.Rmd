@@ -329,63 +329,34 @@ mean(size)                              #calculate the mean
 
 ```
 b. Repeat this process but change the starting probability to a new value within 2% either way. Get the expected return after 100 repetitions. Keep exploring until you have a return value that is as fair as you can make it. Can you do this automatically?
-
-
-4. Creating a Bootstrap function. There is a particular concept called [bootstrapping]
-(https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) where we can easily create 95% confidence intervals, even for complex estimators.
-
-The steps of this process are:
-
-  a. Draw a sample, with replacement, from your data which is the same length of your data.
 ```{r}
-sample<-sample(20, replace = T)
-
-```
-  b. Calculate the statistic of interest on this boostrap sample (ie mean, variance, regression,...)
-```{r}
-a<-mean(sample)
-s<-sd(sample)
-n <- sample
-error <- qnorm(0.975)*s/sqrt(n)
-left <- a-error
-right <- a+error
-
-
-```
-  c. Peform steps 1:2 at least 1000 times over until you have a vector of your statistics. 
-```{r}
-
-meann <- function(data, num) {
-    resamples <- lapply(1:num, function(i) sample(data, replace=T)) # why function(i)?? 
-    
-    
-    a<-sapply(sample, mean)
-    s<-sd(sample)
-    n <- sample
-    error <- qnorm(0.975)*s/sqrt(n)
-    left <- a-error
-    right <- a+error
-    
-    r.mean <- sapply(resamples, mean)
-    r.var <- sapply(resamples, var)
-    std.err <- sqrt(var(r.mean))
-    list(var = r.var, std.err=std.err, resamples=resamples, mean=r.mean)   
-}
-meann(samp, 10)
-
 set.seed(1)
 
-sample<-vector()
-
-boot<-function(x){
-  for(i in 1:length(x)){
-  sample<-sample(, replace = T)
-
-  if()
-  }
-  if(h==100000){break}
-
+increment<-function(N,v){
+ output=numeric()
+  for (j in 1:25){
+  size=numeric()
+  N=N
+  for(i in 1:N)
+{
+  next4 = markchain(100,900,0.48+v*j)
+  size = c(size,next4)
 }
+  next_val=length(which(size==0))/N
+  output=c(output,next_val)
+}
+  return(output)
+}
+
+increment(N=100,0.002)
+#It looks like 51 is the fairest the game will be
+```
+
+c. Repeat again, keeping the initial probability at 48%, but this time change the probability increment to a value different from 1%. Get the expected return after 100 repetitions. Keep changing this value until you have a return value that is as fair as you can make it. 
+```{r}
+set.seed(1)
+markchain1=function(bets,bankroll,prob,incr)
+{
   h=0
   probability<-prob
   while(bets>0) {
@@ -399,17 +370,100 @@ boot<-function(x){
       prob = probability
     }
     h=h+1
+    if(h==100000){break}
     if(bankroll < bets){break}
   }
   return(bankroll)
 }
 
-```
-  d. The lower bound of a 95% CI will be the 0.025 percentile
-```{r}
+increment1<-function(N,v,g){
+ output=numeric()
+  for (j in 1:20){
+  size=numeric()
+  N=N
+  for(i in 1:N)
+{
+  next4 = markchain1(100,900,0.48+v*j, g)
+  size = c(size,next4)
+}
+  next_val=length(which(size==0))/N
+  output=c(output,next_val)
+}
+  return(output)
+}
+
+
+increment1(N=100, 0.002, 0.025)
+increment1(N=100, 0.002, 0.018)
+increment1(N=100, 0.002, 0.015)
+increment1(N=100, 0.002, 0.012)
+
+#If the probability increment is changed to 3%, it looks like 51 is the fairest the game will be.
 
 ```
+
+4. Creating a Bootstrap function. There is a particular concept called [bootstrapping]
+(https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) where we can easily create 95% confidence intervals, even for complex estimators.
+
+The steps of this process are:
+
+  a. Draw a sample, with replacement, from your data which is the same length of your data.
+  b. Calculate the statistic of interest on this boostrap sample (ie mean, variance, regression,...)
+  c. Peform steps 1:2 at least 1000 times over until you have a vector of your statistics.
+  d. The lower bound of a 95% CI will be the 0.025 percentile
   e. The upper bound of a 95% CI will be the 0.975 percentile
+Make a function called `boot_ci` which calculates the 95% confidence interval in this manner. 
+
+```{r}
+x<-1:50
+
+#boot1<-function(x, N){    #N equals # of times to sample
+  #for (i in 1:N){
+  #data<-sample(x, length(x),replace = T)
+  #a<-mean(data, na.rm=TRUE)
+  #s<-sd(data, na.rm=TRUE)
+  #n <- length(data)
+  #v<-var(data, na.rm=TRUE)
+  #error <- qnorm(0.975)*s/sqrt(n)
+  #lowbound <- a-error
+  #upbound <- a+error
+#}
+  #return(c(a, v, lowbound, upbound))
+#}
+
+#boot2<-function(x, N, FUN, z){    #N equals # of times to sample
+  #for (i in 1:N){
+  #data<-sample(x, length(x),replace = T)
+  #fxn<-FUN(data)
+  #a<-mean(data, na.rm=TRUE)
+  #s<-sd(data, na.rm=TRUE)
+  #n <- length(data)
+  #v<-var(data, na.rm=TRUE)
+  #error <- qnorm(z)*s/sqrt(n)
+  #lowbound <- a-error
+  #upbound <- a+error
+#}
+  #return(c(fxn, lowbound, upbound))
+#}
+
+boot_ci<-function(x, N, FUN, z){    #x=data, N=# of times to sample, FUN=function of interest, z=z-score of interest
+  sample<-c()                       #initiate vector
+  for (i in 1:N){                   #for each iteration
+  data<-sample(x, length(x),replace = T)  #sample whole length with replacement
+  sample[i]<-FUN(data)              #store function of interest from bootstrapped sample in the vector
+  a<-mean(sample, na.rm=TRUE)       #Calculate mean, sd, and length to use for calculation of CI
+  s<-sd(sample, na.rm=TRUE)
+  n <- length(sample)
+  error <- qnorm(z)*s/sqrt(n)       #use mean, sd, and length to calculate error
+  lowbound <- a-error               #calculate lower bound and upper bound by subtracting or adding error
+  upbound <- a+error
+}
+  return(c(lowbound, upbound))      #retrun the confidence intervals
+}
+boot_ci(x, 1000, FUN=var, 0.975)
+boot_ci(x, 1000, FUN=mean, 0.975)
+
+```
 
 Make a function called `boot_ci` which calculates the 95% confidence interval in this manner. 
 
