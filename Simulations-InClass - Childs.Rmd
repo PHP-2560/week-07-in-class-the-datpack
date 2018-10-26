@@ -332,14 +332,14 @@ b. Repeat this process but change the starting probability to a new value within
 ```{r}
 set.seed(1)
 
-increment<-function(N,v){
+increment<-function(N,v){           #create a new function with two arguments:the # of repititiona and the change to the starting probability    
  output=numeric()
   for (j in 1:25){
   size=numeric()
   N=N
   for(i in 1:N)
 {
-  next4 = markchain(100,900,0.48+v*j)
+  next4 = markchain(100,900,0.48+v*j) #v is the variable used to change the starting probability
   size = c(size,next4)
 }
   next_val=length(which(size==0))/N
@@ -355,7 +355,7 @@ increment(N=100,0.002)
 c. Repeat again, keeping the initial probability at 48%, but this time change the probability increment to a value different from 1%. Get the expected return after 100 repetitions. Keep changing this value until you have a return value that is as fair as you can make it. 
 ```{r}
 set.seed(1)
-markchain1=function(bets,bankroll,prob,incr)
+markchain1=function(bets,bankroll,prob,incr)    #use previously written markchain function, but add a new argument for the probability increment. everything else remains the same
 {
   h=0
   probability<-prob
@@ -376,14 +376,14 @@ markchain1=function(bets,bankroll,prob,incr)
   return(bankroll)
 }
 
-increment1<-function(N,v,g){
+increment1<-function(N,v,g){        #use the previously written increment function, but add a new argument for the increment value in the new markchain function
  output=numeric()
   for (j in 1:20){
   size=numeric()
   N=N
   for(i in 1:N)
 {
-  next4 = markchain1(100,900,0.48+v*j, g)
+  next4 = markchain1(100,900,0.48+v*j, g) #g is the new is the new increment variable
   size = c(size,next4)
 }
   next_val=length(which(size==0))/N
@@ -393,10 +393,10 @@ increment1<-function(N,v,g){
 }
 
 
-increment1(N=100, 0.002, 0.025)
-increment1(N=100, 0.002, 0.018)
-increment1(N=100, 0.002, 0.015)
-increment1(N=100, 0.002, 0.012)
+increment1(N=100, 0.002, 0.025) #49% the most fair
+increment1(N=100, 0.002, 0.018) #45% the most fair
+increment1(N=100, 0.002, 0.015) #50% the most fair
+increment1(N=100, 0.002, 0.012) #51% the most fair
 
 #If the probability increment is changed to 3%, it looks like 51 is the fairest the game will be.
 
